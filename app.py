@@ -59,25 +59,61 @@ def home():
 # ---------------- SINGLE PREDICTION ------------------
 @app.route("/predict", methods=["POST"])
 def predict():
-    input_data = {}
+    try:
+        input_data = {}
 
-    for col in NUM_COLS:
-        input_data[col] = float(request.form[col])
+        # -------- NUMERIC INPUTS --------
+        for col in NUM_COLS:
+            val = request.form.get(col)
 
-    for col in CAT_COLS:
-        input_data[col] = request.form[col]
+            if val is None or val.strip() == "":
+                return render_template(
+                    "index.html",
+                    error=f"Please enter value for {col}",
+                    num_cols=NUM_COLS,
+                    cat_cols=CAT_COLS,
+                    cat_uniques=CAT_UNIQUES
+                )
 
-    df = pd.DataFrame([input_data])
-    X_transformed = preprocessor.transform(df)
-    prediction = model.predict(X_transformed)[0]
+            input_data[col] = float(val)
 
-    return render_template(
-        "index.html",
-        prediction=round(prediction, 2),
-        num_cols=NUM_COLS,
-        cat_cols=CAT_COLS,
-        cat_uniques=CAT_UNIQUES
-    )
+        # -------- CATEGORICAL INPUTS --------
+        for col in CAT_COLS:
+            val = request.form.get(col)
+
+            if val is None or val.strip() == "":
+                return render_template(
+                    "index.html",
+                    error=f"Please select value for {col}",
+                    num_cols=NUM_COLS,
+                    cat_cols=CAT_COLS,
+                    cat_uniques=CAT_UNIQUES
+                )
+
+            input_data[col] = val
+
+        df = pd.DataFrame([input_data])
+
+        X_transformed = preprocessor.transform(df)
+        prediction = model.predict(X_transformed)[0]
+
+        return render_template(
+            "index.html",
+            prediction=round(float(prediction), 2),
+            num_cols=NUM_COLS,
+            cat_cols=CAT_COLS,
+            cat_uniques=CAT_UNIQUES
+        )
+
+    except Exception as e:
+        print("❌ PREDICTION ERROR:", e)
+        return render_template(
+            "index.html",
+            error="Something went wrong. Please check inputs.",
+            num_cols=NUM_COLS,
+            cat_cols=CAT_COLS,
+            cat_uniques=CAT_UNIQUES
+        )
 
 
 # ---------------- BATCH PREDICTION + PREVIEW ----------
@@ -85,21 +121,29 @@ def predict():
 def batch_predict():
     global batch_result_df
 
-    file = request.files["file"]
-    df = pd.read_csv(file)
+    try:
+        file = request.files.get("file")
+        if file is None:
+            return "No file uploaded", 400
 
-    X_transformed = preprocessor.transform(df)
-    preds = model.predict(X_transformed)
+        df = pd.read_csv(file)
 
-    df["Predicted_Price_INR"] = preds.round(2)
-    batch_result_df = df.copy()
+        X_transformed = preprocessor.transform(df)
+        preds = model.predict(X_transformed)
 
-    preview_df = df.head(10)
+        df["Predicted_Price_INR"] = preds.round(2)
+        batch_result_df = df.copy()
 
-    return render_template(
-        "batch_preview.html",
-        tables=[preview_df.to_html(classes="table", index=False)]
-    )
+        preview_df = df.head(10)
+
+        return render_template(
+            "batch_preview.html",
+            tables=[preview_df.to_html(classes="table", index=False)]
+        )
+
+    except Exception as e:
+        print("❌ BATCH ERROR:", e)
+        return "Batch prediction failed", 500
 
 
 # ---------------- DOWNLOAD FULL CSV ------------------
