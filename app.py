@@ -16,7 +16,7 @@ PROJECT_ROOT = Path(__file__).parent
 
 # ================= PATHS =================
 PREPROCESSOR_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "preprocessor.joblib"
-MODEL_PATH = PROJECT_ROOT / "prediction" / "models" / "models" / "current_model.joblib"
+MODEL_PATH = PROJECT_ROOT / "prediction" / "models"  / "current_model.joblib"
 FEATURE_LIST_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "feature_list.json"
 TRAIN_CSV_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "train.csv"
 
