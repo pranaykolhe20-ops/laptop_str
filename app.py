@@ -13,7 +13,7 @@ app = Flask(__name__)
 # =====================================================
 PROJECT_ROOT = Path(__file__).parent
 
-MODEL_PATH = PROJECT_ROOT / "prediction" / "models" / "models" / "current_model.joblib"
+MODEL_PATH = PROJECT_ROOT / "prediction" / "models" / "current_model.joblib"
 PREPROCESSOR_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "preprocessor.joblib"
 FEATURE_LIST_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "feature_list.json"
 TRAIN_CSV_PATH = PROJECT_ROOT / "artifacts" / "transformed" / "train.csv"
